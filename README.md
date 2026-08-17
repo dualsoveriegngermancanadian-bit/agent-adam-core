@@ -11,3 +11,10 @@
 - Micro-Swapping Transaction Engine
 - Subscription & Payment Verification
 - Hardware USB Chip Key Authentication
+
+## Quick Start
+
+```bash
+pip install Flask==3.0.2 Flask-Cors==4.0.0 Werkzeug==3.0.1 requests==2.31.0
+python app.py
+```

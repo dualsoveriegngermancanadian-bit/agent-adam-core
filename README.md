@@ -3,18 +3,49 @@
 **Copyright & Ownership (c) 2026 Melvyn Douglas Braun (Prince Mel Braun). All Rights Reserved.**  
 **Business Entity:** Dual Sovereign Braun Autonomous Ecosystems
 
-> Proprietary sovereign architecture and multi-agent deployment framework. Unauthorized copying, distribution, modification, or commercial utilization of this software, its routing logic, or architecture without explicit written consent from the owner is strictly prohibited.
+Agent Adam Core is a Flask service that publishes a read-only 20-agent orchestration view and reports integration readiness. It deliberately does **not** execute settlement, activate subscriptions, verify hardware tokens, or move funds until those capabilities have separately approved authenticated integrations.
 
-## Architecture & Features
+## Implemented capabilities
 
-- 20-Agent Pool Orchestration
-- Micro-Swapping Transaction Engine
-- Subscription & Payment Verification
-- Hardware USB Chip Key Authentication
+| Endpoint | Purpose | Side effects |
+| --- | --- | --- |
+| `GET /health` | Liveness and release metadata | None |
+| `GET /api/v1/agents` | Read-only agent-pool status | None |
+| `GET /api/v1/readiness` | Integration-readiness summary | None |
+| `POST /api/v1/settlement/micro` | Settlement integration status | Returns `503`; no funds move |
+| `POST /api/v1/subscriptions/verify` | Subscription integration status | Returns `503`; no access changes |
+| `POST /api/v1/access/hardware-token` | Identity integration status | Returns `503`; no token is accepted |
 
-## Quick Start
+The service rejects oversized request bodies. Browser-origin access is disabled by default and can be restricted with `CORS_ALLOWED_ORIGINS` when a browser client is introduced.
+
+## Local run
+
+Create a virtual environment, install dependencies, and start the service:
 
 ```bash
-pip install Flask==3.0.2 Flask-Cors==4.0.0 Werkzeug==3.0.1 requests==2.31.0
-python app.py
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+gunicorn --bind 0.0.0.0:${PORT:-5000} app:app
 ```
+
+For local development only, `python app.py` is also supported. Do not use Flask development mode for a public deployment.
+
+## Configuration
+
+Copy `.env.example` to your deployment provider’s environment configuration. `APP_VERSION` is optional. Set `CORS_ALLOWED_ORIGINS` only to the exact HTTPS origins that need browser access. No banking, payment, or provider credentials belong in this repository.
+
+## Release checks
+
+Before releasing, run:
+
+```bash
+gunicorn --check-config app:app
+curl http://127.0.0.1:5000/health
+```
+
+Real settlement, subscriptions, and hardware-token verification need separately approved integrations, durable audit storage, authorization controls, webhook verification, rate limiting, and operational monitoring before release.
+
+## Ownership
+
+Unauthorized copying, distribution, modification, or commercial utilization of this software, its routing logic, or architecture without explicit written consent from the owner is prohibited.
